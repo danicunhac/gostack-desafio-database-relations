@@ -4,7 +4,6 @@ import AppError from '@shared/errors/AppError';
 
 import Product from '../infra/typeorm/entities/Product';
 import IProductsRepository from '../repositories/IProductsRepository';
-import ICreateProductDTO from '../dtos/ICreateProductDTO';
 
 interface IRequest {
   name: string;
@@ -20,20 +19,13 @@ class CreateProductService {
   ) {}
 
   public async execute({ name, price, quantity }: IRequest): Promise<Product> {
-    // TODO
-    const checkProductExists = await this.productsRepository.findByName(name);
+    const productExists = await this.productsRepository.findByName(name);
 
-    if (checkProductExists) {
-      throw new AppError('Product already exists');
+    if (productExists) {
+      throw new AppError(`A product with name ${name} already exists.`);
     }
 
-    const product = await this.productsRepository.create({
-      name,
-      price,
-      quantity,
-    });
-
-    return product;
+    return this.productsRepository.create({ name, price, quantity });
   }
 }
 
